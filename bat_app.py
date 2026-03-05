@@ -65,7 +65,7 @@ st.markdown(f"""
     font-family: 'DM Sans', sans-serif !important;
     font-weight: 700 !important;
     border-radius: 30px !important;
-    border: 2px solid #{PURPLE} !important;
+    border: 2px solid #{ORANGE} !important;
     transition: all 0.2s !important;
     white-space: nowrap !important;
     overflow: hidden !important;
