@@ -195,16 +195,31 @@ desc_map = {
 st.markdown(f"<small style='color:#8b8fa8'>{desc_map[template]}</small>", unsafe_allow_html=True)
 
 # ── Embedded template loader ───────────────────────────────────────────────────
-SCRIPT_DIR = pathlib.Path(__file__).parent
-
 def load_template(template_type: str) -> bytes:
-    """Load the bundled template file from the same directory as this script."""
+    """Load template from repo root, works locally and on Streamlit Cloud."""
     fname = "Agile_BAT_Template.xlsx" if template_type == "robust" else "Bid_Tracker.xlsx"
-    path = SCRIPT_DIR / fname
-    if not path.exists():
-        st.error(f"Template file not found: {fname}. Make sure it is in the same folder as this script.")
-        st.stop()
-    return path.read_bytes()
+
+    candidates = [
+        pathlib.Path(__file__).parent / fname,
+        pathlib.Path(os.getcwd()) / fname,
+    ]
+    # Streamlit Cloud mounts repos under /mount/src/<repo-name>/
+    mount = pathlib.Path("/mount/src")
+    if mount.exists():
+        candidates.append(mount / fname)
+        for sub in mount.iterdir():
+            if sub.is_dir():
+                candidates.append(sub / fname)
+
+    for path in candidates:
+        if path.exists():
+            return path.read_bytes()
+
+    st.error(
+        f"**Template not found: `{fname}`** \n\n"
+        f"Commit `{fname}` to the root of your GitHub repo alongside `bat_app.py`."
+    )
+    st.stop()
 
 st.markdown("---")
 
